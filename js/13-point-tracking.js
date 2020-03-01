@@ -18,10 +18,10 @@ class Robot {
 		let world = new THREE.Group();
 		width = this.arm_lengths.slice(1).reduce( (i, j) => i+j);
 		height = width + this.arm_lengths[0];
-		// let loader = new THREE.TextureLoader();
+		let texture = new THREE.TextureLoader().load('images/tile-floor01.jpg');
 		plane = new THREE.Mesh(
 			new THREE.CircleGeometry(width, 50, 50), 
-			new THREE.MeshLambertMaterial({color: 'white'})
+			new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide, transparent: true, opacity: 0.9})
 		)
 		plane.rotation.x = -pi/2;
 
@@ -36,7 +36,7 @@ class Robot {
    		arm0 = change_origin([0, -this.arm_lengths[0]/2, 0], arm0);
    		arm0.position.y = 0;
 		let arm0_bottom = new THREE.Mesh(
-			new THREE.CylinderGeometry(5, 5, 2, 8),
+			new THREE.CylinderGeometry(5, 5, 2, 5),
    			new THREE.MeshLambertMaterial({wireframe: !1, color: '#c0c0c0'})
    		)
 		arm0_bottom.position.y = 1; 
@@ -88,7 +88,7 @@ class Robot {
 		]
 		for(let i=0; i<6; i++) {
 
-			let light = new THREE.DirectionalLight( i%2 == 1 ? 0xffffff : 0x444444, .5); //  太阳光-平行光
+			let light = new THREE.DirectionalLight( i%2 == 1 ? 0xffffff : 0x444444, 1); //  太阳光-平行光
 			light.position.set(...pos_arr[i]);
 			scene.add(light);
 		}
@@ -177,7 +177,7 @@ function change_origin(pos, obj){
     return wrapper;
 }
 
-camera.position.set(45, 60, 150);
+camera.position.set(0, height, 2*height);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 var controls = new THREE.TrackballControls(camera);
 (function animate() {
