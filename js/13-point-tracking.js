@@ -15,12 +15,13 @@ class Robot {
 	}
 
 	draw() {
+		let world = new THREE.Group();
 		width = this.arm_lengths.slice(1).reduce( (i, j) => i+j);
 		height = width + this.arm_lengths[0];
 		// let loader = new THREE.TextureLoader();
 		plane = new THREE.Mesh(
 			new THREE.CircleGeometry(width, 50, 50), 
-			new THREE.MeshPhongMaterial({color: '#556B2F'})
+			new THREE.MeshLambertMaterial({color: 'white'})
 		)
 		plane.rotation.x = -pi/2;
 
@@ -30,47 +31,48 @@ class Robot {
 		// arm0
 		arm0 = new THREE.Mesh(
 			new THREE.CylinderGeometry(this.joint_radius - 0.5, this.joint_radius - 0.5, this.arm_lengths[0], 30),
-   			new THREE.MeshBasicMaterial({wireframe: !1, color: '#dd4411'}) 
+   			new THREE.MeshLambertMaterial({wireframe: !1, color: '#dd4411'}) 
    		)
    		arm0 = change_origin([0, -this.arm_lengths[0]/2, 0], arm0);
    		arm0.position.y = 0;
 		let arm0_bottom = new THREE.Mesh(
 			new THREE.CylinderGeometry(5, 5, 2, 8),
-   			new THREE.MeshPhongMaterial({wireframe: !1, color: '#c0c0c0'})
+   			new THREE.MeshLambertMaterial({wireframe: !1, color: '#c0c0c0'})
    		)
 		arm0_bottom.position.y = 1; 
    		arm0.add(arm0_bottom);
 
    		// arm 1-3
-   		let color = ['blue', 'red', 'green'];
    		[arm1, arm2, arm3] = [1, 2, 3].map( i => {
    			let arm = new THREE.Mesh(
 				new THREE.CylinderGeometry(this.joint_radius - 0.5, this.joint_radius - 0.5, this.arm_lengths[i], 30),
-   				new THREE.MeshPhongMaterial({wireframe: !1, color: color[i - 1]})
+   				new THREE.MeshLambertMaterial({wireframe: !1, color: '#dd4411'})
    			);
    			arm = change_origin([0, -this.arm_lengths[i]/2, 0], arm);
    			arm.position.y = this.arm_lengths[i-1];
 			let arm_bottom = new THREE.Mesh(
 				new THREE.SphereGeometry(this.joint_radius, 50, 50),
-				new THREE.MeshPhongMaterial({ wireframe: !1, color: 'white'})
+				new THREE.MeshLambertMaterial({ wireframe: !1, color: 'white'})
 			);
 			arm.add(arm_bottom);
 			return arm;
    		})
 
 		target = new THREE.Mesh(
-			new THREE.SphereGeometry(1, 50, 50), 
-			new THREE.MeshPhongMaterial({color: 'yellow'})	
+			new THREE.SphereGeometry(1.5, 50, 50), 
+			new THREE.MeshLambertMaterial({color: 'yellow'})	
 		);
 
+		robot.add(arm0);	
 		arm0.add(arm1);
 		arm1.add(arm2);
 		arm2.add(arm3);
-		scene.add(plane);
 		plane.add(target);
-   		scene.add(robot);
-   		robot.add(arm0);
+		world.add(plane);
+		world.add(robot);
+   		scene.add(world);
    		this.robot = robot;
+   		world.position.y = -height/2;
 
  		// x-红色，y-绿色，z-蓝色
  		plane.rotation.z = pi/2;
@@ -85,12 +87,13 @@ class Robot {
 			[-height, 0, 0]
 		]
 		for(let i=0; i<6; i++) {
-			let light = new THREE.DirectionalLight('gray', .5); //  太阳光-平行光
+
+			let light = new THREE.DirectionalLight( i%2 == 1 ? 0xffffff : 0x444444, .5); //  太阳光-平行光
 			light.position.set(...pos_arr[i]);
 			scene.add(light);
 		}
 		
-		scene.add( new THREE.AmbientLight( 'white' ) );
+		scene.add( new THREE.AmbientLight( 0x444444 ) );
 	}
 
 	get_joint_angle(x, y) {
@@ -158,8 +161,8 @@ class Robot {
 	}
 }
 
-var arm_lengths = [8, 20, 9, 16];
-var robot = new Robot(arm_lengths, 1.2);
+var arm_lengths = [20, 15, 12, 16];
+var robot = new Robot(arm_lengths, 2);
 robot.draw();
 robot.start();
 
