@@ -8,7 +8,7 @@ class Robot {
 	constructor(arm_lengths, radius) {
 		this.arm_lengths = arm_lengths;
 		this.joint_radius = radius;
-		this.joint_angles = [];
+		this.joint_angles = [0, pi/2, 0, 0];
 		this.target_pos = [];
 		this.arms = [];
 		this.robot = null;
@@ -46,13 +46,13 @@ class Robot {
    		[arm1, arm2, arm3] = [1, 2, 3].map( i => {
    			let arm = new THREE.Mesh(
 				new THREE.CylinderGeometry(this.joint_radius - 0.5, this.joint_radius - 0.5, this.arm_lengths[i], 30),
-   				new THREE.MeshLambertMaterial({wireframe: !1, color: '#dd4411'})
+   				new THREE.MeshPhongMaterial({wireframe: !1, color: '#dd4411'})
    			);
    			arm = change_origin([0, -this.arm_lengths[i]/2, 0], arm);
    			arm.position.y = this.arm_lengths[i-1];
 			let arm_bottom = new THREE.Mesh(
 				new THREE.SphereGeometry(this.joint_radius, 50, 50),
-				new THREE.MeshLambertMaterial({ wireframe: !1, color: 'white'})
+				new THREE.MeshPhongMaterial({ wireframe: !1, color: 'white'})
 			);
 			arm.add(arm_bottom);
 			return arm;
@@ -107,6 +107,7 @@ class Robot {
 		let c = x*x + y*y + lens[1]*lens[1] + lens[2]*lens[2] - lens[0]*lens[0] - 2*lens[2]*( x*Math.cos(phi) + y*Math.sin(phi) );
 		let d = b*b + a*a - c*c;
 		if( d < 0 ) { // 无法到达
+			console.log('无法到达');			
 			return !1;
 		} else {
 			psi = theta12 = 2*Math.atan( (b + Math.sqrt(d) ) / (a + c) ); // b +/- sqrt(d)都可以。
@@ -153,9 +154,15 @@ class Robot {
 				this.update();
 				setTimeout(() => {
 					this.start();
-				}, 400);
+				}, 500);
 			}, 1000);
 		} else {
+			// let ball = new THREE.Mesh(
+			// 	new THREE.SphereGeometry(0.3, 5, 5), 
+			// 	new THREE.MeshLambertMaterial({color: 'gray'})	
+			// );
+			// ball.position.set(x, y, z);
+			// plane.add(ball);
 			this.start();
 		}
 	}
