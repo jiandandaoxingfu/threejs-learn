@@ -63,11 +63,26 @@ class Robot {
 			new THREE.MeshLambertMaterial({color: 'yellow'})	
 		);
 
+		let len = this.arm_lengths.slice(1);
+		let min_r = Math.max(len[2] + len[1] - len[0], len[0], len[2] + len[0] - len[1]);
+		let s1 = new THREE.Mesh(
+			new THREE.SphereGeometry(min_r, 10, 10), 
+			new THREE.MeshBasicMaterial({color: 'blue', wireframe: !0})	
+		);
+		s1.position.z = this.arm_lengths[0];
+		let s2 = new THREE.Mesh(
+			new THREE.SphereGeometry(width, 20, 20), 
+			new THREE.MeshBasicMaterial({color: 'red', wireframe: !0})	
+		);
+		s2.position.z = this.arm_lengths[0];
+
 		robot.add(arm0);	
 		arm0.add(arm1);
 		arm1.add(arm2);
 		arm2.add(arm3);
 		plane.add(target);
+		// plane.add(s1);
+		// plane.add(s2);
 		world.add(plane);
 		world.add(robot);
    		scene.add(world);
@@ -144,26 +159,33 @@ class Robot {
 		let x = width*(1 - 2*Math.random());
 		let y = width*(1 - 2*Math.random());
 		let z = height*Math.random();
-		let beta = Math.atan2(y, x); // beta
-		let x1 = x*Math.cos(beta) + y*Math.sin(beta);
-		let z1 = z - this.arm_lengths[0];
-		this.joint_angles = [beta];
-		if( this.get_joint_angle(x1, z1) ) { // theta1, theta2, theta3
-			target.position.set(x, y, z);
-			setTimeout(() => {
-				this.update();
-				setTimeout(() => {
-					this.start();
-				}, 500);
-			}, 1000);
-		} else {
-			// let ball = new THREE.Mesh(
-			// 	new THREE.SphereGeometry(0.3, 5, 5), 
-			// 	new THREE.MeshLambertMaterial({color: 'gray'})	
-			// );
-			// ball.position.set(x, y, z);
-			// plane.add(ball);
+		let r2 = x*x + y*y + (z-this.arm_lengths[0])*(z-this.arm_lengths[0]);
+		let len = this.arm_lengths.slice(1);
+		let min_r = Math.max(len[2] + len[1] - len[0], len[0], len[2] + len[0] - len[1]);
+		if( z-this.arm_lengths[0] <= 0 || r2 > width*width || r2 < min_r*min_r ) {
 			this.start();
+		} else {
+			let beta = Math.atan2(y, x); // beta
+			let x1 = x*Math.cos(beta) + y*Math.sin(beta);
+			let z1 = z - this.arm_lengths[0];
+			this.joint_angles = [beta];
+			if( this.get_joint_angle(x1, z1) ) { // theta1, theta2, theta3
+				target.position.set(x, y, z);
+				setTimeout(() => {
+					this.update();
+					setTimeout(() => {
+						this.start();
+					}, 500);
+				}, 1000);
+			} else {
+				let ball = new THREE.Mesh(
+					new THREE.SphereGeometry(0.3, 5, 5), 
+					new THREE.MeshLambertMaterial({color: 'gray'})	
+				);
+				ball.position.set(x, y, z);
+				plane.add(ball);
+				this.start();
+			}
 		}
 	}
 }
