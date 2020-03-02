@@ -4,7 +4,7 @@ class Robot {
 		this.canvas = null;
 		this.arm_lengths = arm_lengths;
 		this.joint_radius = radius;
-		this.joint_angles = [0, pi/2, 0, 0];
+		this.joint_angles = [0, 0, 0, 0];
 		this.target_pos = [];
 		this.arms = [];
 		this.robot = null;
@@ -77,8 +77,8 @@ class Robot {
 		arm1.add(arm2);
 		arm2.add(arm3);
 		plane.add(target);
-		plane.add(s1);
-		plane.add(s2);
+		// plane.add(s1);
+		// plane.add(s2);
 		world.add(plane);
 		world.add(robot);
    		scene.add(world);
@@ -204,7 +204,7 @@ class Robot {
 		let arr = [];
 		for(let i=0; i<pos_arr.length-1; i++) {
 			let d = Math.sqrt(Math.pow(pos_arr[i+1][0] - pos_arr[i][0], 2) + Math.pow(pos_arr[i+1][1] - pos_arr[i][1], 2));
-			let speed = 0.3/(Math.round(5*d/max_r) + 1);
+			let speed = 0.3/(Math.round(5*d/max_r) + 3);
 			for(let t=0; t<1; t+=speed) {
 				let x = pos_arr[i][0] + t*(pos_arr[i+1][0] - pos_arr[i][0]);
 				let y = pos_arr[i][1] + t*(pos_arr[i+1][1] - pos_arr[i][1]);
@@ -222,16 +222,19 @@ class Robot {
 		arm3.rotation.x = this.joint_angles[3];
 	}
 
-	render(pos_arr) {
+	render(pos_arr, delta_beta) {
 		if( pos_arr.length > 0 ) {
 			setTimeout( () => {
 				this.get_joint_angle(...pos_arr[0]);
+				this.joint_angles[0] += delta_beta;
 				this.update();
-				this.render(pos_arr.slice(1));
+				this.render(pos_arr.slice(1), delta_beta);
 			}, 50)
 		} else {
 			this.last_pos = this.cur_pos;
-			this.start();
+			setTimeout(() => {
+				this.start();
+			}, 500)
 			// this.canvas.removeChild(document.querySelector('#path'));
 		}
 	}
@@ -242,18 +245,26 @@ class Robot {
 		let z = height*Math.random();
 		let r2 = x*x + y*y + Math.pow(z - this.arm_lengths[0], 2);
 		let len = this.arm_lengths.slice(1);
-		if( z <= 0 || r2 > max_r*max_r || r2 < min_r*min_r ) {
+		if( z < 0 || r2 > max_r*max_r || r2 < min_r*min_r ) {
 			this.start();
 		} else {
 			target.position.set(x, y, z);
 			let beta = Math.atan2(y, x); // beta
 			let x1 = x*Math.cos(beta) + y*Math.sin(beta);
 			let z1 = z - this.arm_lengths[0];
-			this.joint_angles = [beta];
+			let last_beta = this.joint_angles[0];
+			this.joint_angles = [last_beta];
 			this.cur_pos = [x1, z1];
 			let pos_arr = this.via_point();
 			pos_arr = this.interpolation(pos_arr);
-			this.render(pos_arr);
+			let delta = (beta - last_beta) % (2*pi);
+			if( delta < -pi ) {
+				delta += 2*pi;
+			} else if ( delta > pi ){
+				delta -= 2*pi;
+			}
+			
+			this.render(pos_arr, delta/pos_arr.length);
 			// if( this.get_joint_angle(x1, z1) ) { // theta1, theta2, theta3
 			// 	setTimeout(() => {
 			// 		this.update();
