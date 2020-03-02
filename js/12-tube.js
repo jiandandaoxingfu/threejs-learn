@@ -2,8 +2,8 @@
  * @Author:             old jia
  * @Email:              jiaminxin@outlook.com
  * @Date:               2019-05-28 11:17:53
- * @Last Modified by:   old jia
- * @Last Modified time: 2019-05-28 12:52:11
+ * @Last Modified by:   jiandandaoxingfu
+ * @Last Modified time: 2020-03-02 20:29:43
  */
 
 var R = 5, r = 0.1;
@@ -11,7 +11,7 @@ var circle = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => {
 	let theta = i * Math.PI / 8;
 	return new THREE.Vector3(R * Math.cos(theta), R * Math.sin(theta), 0);
 })
-	curve = new THREE.CatmullRomCurve3(circle);
+curve = new THREE.CatmullRomCurve3(circle);
 
 var texture = new THREE.TextureLoader().load('images/清明上河图.jpg');
 texture.wrapS = THREE.RepeatWrapping;

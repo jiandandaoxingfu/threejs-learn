@@ -5,11 +5,10 @@ class Robot {
 		this.arm_lengths = arm_lengths;
 		this.joint_radius = radius;
 		this.joint_angles = [0, 0, 0, 0];
-		this.target_pos = [];
-		this.arms = [];
 		this.robot = null;
 		this.last_pos = [];
 		this.cur_pos = [];
+		this.trace = null
 	}
 
 	draw() {
@@ -59,13 +58,12 @@ class Robot {
 			new THREE.MeshLambertMaterial({color: 'yellow'})	
 		);
 
-		let len = this.arm_lengths.slice(1);
-		let min_r = Math.max(len[2] + len[1] - len[0], len[0], len[2] + len[0] - len[1]);
 		let s1 = new THREE.Mesh(
 			new THREE.SphereGeometry(min_r, 10, 10), 
 			new THREE.MeshBasicMaterial({color: 'blue', wireframe: !0})	
 		);
 		s1.position.z = this.arm_lengths[0];
+
 		let s2 = new THREE.Mesh(
 			new THREE.SphereGeometry(width, 20, 20), 
 			new THREE.MeshBasicMaterial({color: 'red', wireframe: !0})	
@@ -87,7 +85,7 @@ class Robot {
 
  		// x-红色，y-绿色，z-蓝色
  		plane.rotation.z = pi/2;
-		plane.add(new THREE.AxisHelper( width ));
+		// plane.add(new THREE.AxisHelper( width ));
 	
    		var pos_arr = [
 			[0, height, 0],
@@ -98,7 +96,6 @@ class Robot {
 			[-height, 0, 0]
 		]
 		for(let i=0; i<6; i++) {
-
 			let light = new THREE.DirectionalLight( i%2 == 1 ? 0xffffff : 0x444444, 1); //  太阳光-平行光
 			light.position.set(...pos_arr[i]);
 			scene.add(light);
@@ -118,7 +115,6 @@ class Robot {
 		let c = x*x + y*y + lens[1]*lens[1] + lens[2]*lens[2] - lens[0]*lens[0] - 2*lens[2]*( x*Math.cos(phi) + y*Math.sin(phi) );
 		let d = b*b + a*a - c*c;
 		if( d < 0 ) { // 无法到达
-			// console.log('无法到达');	
 			return !1;
 		} else {
 			psi = theta12 = 2*Math.atan( (b + Math.sqrt(d) ) / (a + c) ); // b +/- sqrt(d)都可以。
@@ -170,7 +166,7 @@ class Robot {
 				if( Mx*Mx + My*My <= max_r*max_r ) {
 					pos_arr = [this.last_pos, [Mx, My], this.cur_pos];
 				} else {
-
+					// unfinished
 				}
 			}
 		}
@@ -178,13 +174,6 @@ class Robot {
 		pos_arr.forEach( p => {
 			points += (p[0] + 300) + ',' + (p[1] + 300) + ' ';
 		})
-		// let geom = new THREE.Geometry();
-		// pos_arr.forEach( p => geom.vertivfces.push(new THREE.Vector3(...p)) );
-		// let line = new THREE.Line(
-		// 	geom,
-		// 	new THREE.LineBasicMaterial({color: 'red'})
-		// );
-		// scene.add(line);
 		return pos_arr;
 	}
 
@@ -200,7 +189,28 @@ class Robot {
 		return (Math.abs(angle - a1) > Math.abs(angle - a2) ) ? k2 : k1;
 	}
 
+	show_trace(pos_arr, beta, delta) {
+		let curve = [];
+		pos_arr = [...pos_arr];
+		pos_arr = [...pos_arr, pos_arr.pop()];
+		pos_arr.forEach( p => {
+			// frame0 在 frame1 中的坐标，转化为在 frame0 中的坐标。
+			let x = p[0] * Math.cos(beta);
+			let y = p[0] * Math.sin(beta);
+			let z = p[1] + this.arm_lengths[0];
+			curve.push(new THREE.Vector3(x, y, z) );
+			beta += delta;
+		})
+		curve = new THREE.CatmullRomCurve3(curve);
+		this.trace = new THREE.Mesh(
+			new THREE.TubeGeometry(curve, 100, 0.3, 50, false),	
+			new THREE.MeshPhongMaterial({color: 'blue'})
+		);
+		plane.add(this.trace);
+	}
+
 	interpolation(pos_arr) {
+		// 根据端点长度，线性插值
 		let arr = [];
 		for(let i=0; i<pos_arr.length-1; i++) {
 			let d = Math.sqrt(Math.pow(pos_arr[i+1][0] - pos_arr[i][0], 2) + Math.pow(pos_arr[i+1][1] - pos_arr[i][1], 2));
@@ -229,13 +239,14 @@ class Robot {
 				this.joint_angles[0] += delta_beta;
 				this.update();
 				this.render(pos_arr.slice(1), delta_beta);
-			}, 50)
+			}, 80)
 		} else {
 			this.last_pos = this.cur_pos;
 			setTimeout(() => {
+				plane.remove(this.trace);
+				this.trace = null;
 				this.start();
 			}, 500)
-			// this.canvas.removeChild(document.querySelector('#path'));
 		}
 	}
 
@@ -249,7 +260,7 @@ class Robot {
 			this.start();
 		} else {
 			target.position.set(x, y, z);
-			let beta = Math.atan2(y, x); // beta
+			let beta = Math.atan2(y, x);
 			let x1 = x*Math.cos(beta) + y*Math.sin(beta);
 			let z1 = z - this.arm_lengths[0];
 			let last_beta = this.joint_angles[0];
@@ -263,24 +274,9 @@ class Robot {
 			} else if ( delta > pi ){
 				delta -= 2*pi;
 			}
-			
-			this.render(pos_arr, delta/pos_arr.length);
-			// if( this.get_joint_angle(x1, z1) ) { // theta1, theta2, theta3
-			// 	setTimeout(() => {
-			// 		this.update();
-			// 		setTimeout(() => {
-			// 			this.start();
-			// 		}, 500);
-			// 	}, 1000);
-			// } else {
-			// 	let ball = new THREE.Mesh(
-			// 		new THREE.SphereGeometry(0.3, 5, 5), 
-			// 		new THREE.MeshLambertMaterial({color: 'gray'})	
-			// 	);
-			// 	ball.position.set(x, y, z);
-			// 	plane.add(ball);
-			// 	this.start();
-			// }
+			delta = delta/pos_arr.length;
+			// this.show_trace(pos_arr, last_beta, delta);
+			this.render(pos_arr, delta);
 		}
 	}
 }
