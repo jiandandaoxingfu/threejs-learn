@@ -1,23 +1,19 @@
-const pi = Math.PI;
-var target, plane;
-var arm0, arm1, arm2, arm3;
-var width;
-var height;
 class Robot {
 	// 考虑三维四自由度机械臂。
 	constructor(arm_lengths, radius) {
+		this.canvas = null;
 		this.arm_lengths = arm_lengths;
 		this.joint_radius = radius;
 		this.joint_angles = [0, pi/2, 0, 0];
 		this.target_pos = [];
 		this.arms = [];
 		this.robot = null;
+		this.last_pos = [];
+		this.cur_pos = [];
 	}
 
 	draw() {
 		let world = new THREE.Group();
-		width = this.arm_lengths.slice(1).reduce( (i, j) => i+j);
-		height = width + this.arm_lengths[0];
 		let texture = new THREE.TextureLoader().load('images/tile-floor01.jpg');
 		plane = new THREE.Mesh(
 			new THREE.CircleGeometry(width, 50, 50), 
@@ -81,8 +77,8 @@ class Robot {
 		arm1.add(arm2);
 		arm2.add(arm3);
 		plane.add(target);
-		// plane.add(s1);
-		// plane.add(s2);
+		plane.add(s1);
+		plane.add(s2);
 		world.add(plane);
 		world.add(robot);
    		scene.add(world);
@@ -122,7 +118,7 @@ class Robot {
 		let c = x*x + y*y + lens[1]*lens[1] + lens[2]*lens[2] - lens[0]*lens[0] - 2*lens[2]*( x*Math.cos(phi) + y*Math.sin(phi) );
 		let d = b*b + a*a - c*c;
 		if( d < 0 ) { // 无法到达
-			console.log('无法到达');			
+			// console.log('无法到达');	
 			return !1;
 		} else {
 			psi = theta12 = 2*Math.atan( (b + Math.sqrt(d) ) / (a + c) ); // b +/- sqrt(d)都可以。
@@ -136,16 +132,87 @@ class Robot {
 				theta2 = theta12 - theta1;
 			}
 			
-			[theta1, theta2, theta3].forEach( theta => {
+			[theta1, theta2, theta3].forEach( (theta, i) => {
 				if( theta > pi ) {
 					theta -= 2*pi;
 				} else if( theta < -pi ) {
 					theta += 2*pi;
 				}
-				this.joint_angles.push(theta);
+				this.joint_angles[i+1] = theta;
 			});
 			return !0;
 		}
+	}
+
+	via_point() {
+		let [x0, y0] = this.last_pos; // P
+		let [x, y] = this.cur_pos; // Q
+		// P --> Q
+		let pos_arr = [this.last_pos, this.cur_pos];
+		// 圆心到PQ距离
+		let d = Math.abs( x0*(y-y0) - (x-x0)*y0 )/Math.sqrt( (y-y0)*(y-y0) + (x-x0)*(x-x0) );
+		// 相交与两点
+		if( d < min_r ) {
+			// 在圆的两侧(过圆心垂直PQ的线与PQ的交点N，NP，NQ内积<0)
+			d = x0*x0 - 2*x0*x + x*x + y0*y0 - 2*y0*y + y*y;
+			let Nx = -(x0*y - x*y0)*(y0 - y)/d;
+			let Ny = (x0*y - x*y0)*(x0 - x)/d;
+			let NP = [x0 - Nx, y0 - Ny];
+			let NQ = [x - Nx, y - Ny];
+			if( NP[0]*NQ[0] + NP[1]*NQ[1] < 0 ) {
+				// P --> M --> Q.
+				let theta = Math.atan( (y-y0)/(x-x0) );
+				let k0 = this.get_slope(theta, x0, y0);
+				let k1 = this.get_slope(theta, x, y);
+				// 求切线交点M
+				let Mx = (k0*x0 - k1*x - y0 + y) / (k0-k1);
+				let My = (k0*k1*x0 - k0*k1*x + k0*y - k1*y0) / (k0-k1);
+				if( Mx*Mx + My*My <= max_r*max_r ) {
+					pos_arr = [this.last_pos, [Mx, My], this.cur_pos];
+				} else {
+
+				}
+			}
+		}
+		let points = '';
+		pos_arr.forEach( p => {
+			points += (p[0] + 300) + ',' + (p[1] + 300) + ' ';
+		})
+		// let geom = new THREE.Geometry();
+		// pos_arr.forEach( p => geom.vertivfces.push(new THREE.Vector3(...p)) );
+		// let line = new THREE.Line(
+		// 	geom,
+		// 	new THREE.LineBasicMaterial({color: 'red'})
+		// );
+		// scene.add(line);
+		return pos_arr;
+	}
+
+	get_slope(angle, x, y) {
+		// 返回与弦夹角最小的切线斜率
+		let r2 = min_r*min_r;
+		let d = Math.sqrt( r2*( x*x + y*y - r2 ) );
+		let k1 = (d - x*y)/(r2 - x*x);
+		let k2 = -(d + x*y)/(r2 - x*x);
+		let a1 = Math.atan(k1);
+		let a2 = Math.atan(k2);
+		[angle, a1, a2] = [angle, a1, a2].map( a => a < 0 ? a+pi : a);
+		return (Math.abs(angle - a1) > Math.abs(angle - a2) ) ? k2 : k1;
+	}
+
+	interpolation(pos_arr) {
+		let arr = [];
+		for(let i=0; i<pos_arr.length-1; i++) {
+			let d = Math.sqrt(Math.pow(pos_arr[i+1][0] - pos_arr[i][0], 2) + Math.pow(pos_arr[i+1][1] - pos_arr[i][1], 2));
+			let speed = 0.3/(Math.round(5*d/max_r) + 1);
+			for(let t=0; t<1; t+=speed) {
+				let x = pos_arr[i][0] + t*(pos_arr[i+1][0] - pos_arr[i][0]);
+				let y = pos_arr[i][1] + t*(pos_arr[i+1][1] - pos_arr[i][1]);
+				arr.push([x, y]);
+			}
+		}
+		arr.push(pos_arr.pop());
+		return arr;
 	}
 
 	update() {
@@ -155,45 +222,73 @@ class Robot {
 		arm3.rotation.x = this.joint_angles[3];
 	}
 
+	render(pos_arr) {
+		if( pos_arr.length > 0 ) {
+			setTimeout( () => {
+				this.get_joint_angle(...pos_arr[0]);
+				this.update();
+				this.render(pos_arr.slice(1));
+			}, 50)
+		} else {
+			this.last_pos = this.cur_pos;
+			this.start();
+			// this.canvas.removeChild(document.querySelector('#path'));
+		}
+	}
+
 	start() {
 		let x = width*(1 - 2*Math.random());
 		let y = width*(1 - 2*Math.random());
 		let z = height*Math.random();
-		let r2 = x*x + y*y + (z-this.arm_lengths[0])*(z-this.arm_lengths[0]);
+		let r2 = x*x + y*y + Math.pow(z - this.arm_lengths[0], 2);
 		let len = this.arm_lengths.slice(1);
-		let min_r = Math.max(len[2] + len[1] - len[0], len[0], len[2] + len[0] - len[1]);
-		if( z-this.arm_lengths[0] <= 0 || r2 > width*width || r2 < min_r*min_r ) {
+		if( z <= 0 || r2 > max_r*max_r || r2 < min_r*min_r ) {
 			this.start();
 		} else {
+			target.position.set(x, y, z);
 			let beta = Math.atan2(y, x); // beta
 			let x1 = x*Math.cos(beta) + y*Math.sin(beta);
 			let z1 = z - this.arm_lengths[0];
 			this.joint_angles = [beta];
-			if( this.get_joint_angle(x1, z1) ) { // theta1, theta2, theta3
-				target.position.set(x, y, z);
-				setTimeout(() => {
-					this.update();
-					setTimeout(() => {
-						this.start();
-					}, 500);
-				}, 1000);
-			} else {
-				let ball = new THREE.Mesh(
-					new THREE.SphereGeometry(0.3, 5, 5), 
-					new THREE.MeshLambertMaterial({color: 'gray'})	
-				);
-				ball.position.set(x, y, z);
-				plane.add(ball);
-				this.start();
-			}
+			this.cur_pos = [x1, z1];
+			let pos_arr = this.via_point();
+			pos_arr = this.interpolation(pos_arr);
+			this.render(pos_arr);
+			// if( this.get_joint_angle(x1, z1) ) { // theta1, theta2, theta3
+			// 	setTimeout(() => {
+			// 		this.update();
+			// 		setTimeout(() => {
+			// 			this.start();
+			// 		}, 500);
+			// 	}, 1000);
+			// } else {
+			// 	let ball = new THREE.Mesh(
+			// 		new THREE.SphereGeometry(0.3, 5, 5), 
+			// 		new THREE.MeshLambertMaterial({color: 'gray'})	
+			// 	);
+			// 	ball.position.set(x, y, z);
+			// 	plane.add(ball);
+			// 	this.start();
+			// }
 		}
 	}
 }
 
-var arm_lengths = [20, 15, 12, 16];
-var robot = new Robot(arm_lengths, 2);
+const pi = Math.PI;
+var target, plane;
+var arm0, arm1, arm2, arm3;
+var len = [20, 15, 12, 16];
+var width = len.slice(1).reduce( (i, j) => i+j);
+var height = width + len[0];
+var max_r = width;
+var min_r = Math.max(len[2] + len[1] - len[0], len[0], len[2] + len[0] - len[1]);
+var robot = new Robot(len, 2);
+robot.last_pos = [max_r - 5, 1];
 robot.draw();
-robot.start();
+setTimeout( () => {
+	robot.canvas = document.querySelector('canvas');
+	robot.start();
+}, 2000);
 
 
 //通过x,y,z指定旋转中心改变x，y，z的顺序，obj是要旋转的对象
