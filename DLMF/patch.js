@@ -13,13 +13,13 @@ var nx = 200,
 	vz = [],
 	vertices = '',
 	faces = '',
-	xmin = -4.2,
-	xmax = 4.2,
-	ymin = -4.2,
-	ymax = 4.2,
+	xmin = -4,
+	xmax = 4,
+	ymin = -4,
+	ymax = 4,
 	xwid = xmax - xmin,
 	ywid = ymax - ymin,
-	zfunc = '3.5 * exp(-(X^2 + T^2)) + 2 * exp(-(X^2 + (T+3)^2)) - 4 * exp(-((X-3)^2 + T^2)) -4 * exp(-(X^2 + (T-3)^2)) + 2.5 * exp(-((X+3)^2 + T^2)) + sin(3 * X) * rand(1) + cos(3 * T) * rand(1)';
+	zfunc = '3 * exp(-(X^2 + T^2)) + 2 * exp(-(X^2 + (T+3)^2)) - 2 * exp(-((X-3)^2 + T^2)) - 2.5 * exp(-(X^2 + (T-3)^2)) + 2.5 * exp(-((X+3)^2 + T^2)) + sin(3 * X) * rand(1) + cos(3 * T) * rand(1)';
 	zfunc = math2js(zfunc);
 console.log(zfunc);
 
