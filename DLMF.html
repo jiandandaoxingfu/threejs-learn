@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<!-- https://dlmf.nist.gov/21.4.F1a.viz -->
+<html>
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+  <title>DLMF</title> 
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <link rel="stylesheet" href="DLMF/jquery-ui.css" type="text/css" /> 
+  <link rel="stylesheet" href="DLMF/x3dom.css" type="text/css" /> 
+  <link rel="stylesheet" href="DLMF/DLMF_webGL.css" type="text/css" /> 
+  <link rel="stylesheet" type="text/css" href="DLMF/LaTeXML.css" /> 
+  <link rel="stylesheet" type="text/css" href="DLMF/DLMF.css" /> 
+  <link rel="stylesheet" type="text/css" href="DLMF/print.css" media="print" /> 
+ </head> 
+ <body class="color_default textfont_default titlefont_default fontsize_default navbar_default"> 
+  <div class="ltx_page_main"> 
+   <div class="ltx_page_content"> 
+    <figure class="ltx_figure ltx_webglfigure_outer ltx_leqno"> 
+     <figure class="ltx_figure ltx_webglfigure"> 
+      <div id="colorLegend"> 
+       <canvas height="100" id="colorCanvas" width="100"></canvas> 
+      </div> 
+      <div id="mainScene"> 
+       <x3d xmlns="http://www.web3d.org/specifications/x3d-namespace" id="x3dElement" showstat="false" showlog="false" width="600px" height="600px"> 
+        <scene> 
+         <background skycolor="1.0 1.0 1.0"></background> 
+         <metadatainteger id="datasetNum" value="1"></metadatainteger> 
+         <metadatafloat id="minx" value="_MINX_"></metadatafloat> 
+         <metadatafloat id="maxx" value="_MAXX_"></metadatafloat> 
+         <metadatafloat id="miny" value="_MINY_"></metadatafloat> 
+         <metadatafloat id="maxy" value="_MAXY_"></metadatafloat> 
+         <metadatafloat id="minz" value="_MINZ_"></metadatafloat> 
+         <metadatafloat id="maxz" value="_MAXZ_"></metadatafloat> 
+         <metadatafloat id="nx1" value="_NX1_"></metadatafloat> 
+         <metadatafloat id="ny1" value="_NY1_"></metadatafloat> 
+         <metadatafloat id="world_scale" value="_SCALE_"></metadatafloat> 
+         <metadatafloat id="world_translation" value="_TRANSLATION_"></metadatafloat> 
+         <metadatafloat id="textScale" value="0.18499,0.18499,1.00000"></metadatafloat> 
+         <metadatainteger id="initViewpoint" value="0"></metadatainteger> 
+         <metadatafloat id="Xminmax1" value=""></metadatafloat> 
+         <metadatafloat id="Yminmax1" value=""></metadatafloat> 
+         <group> 
+          <transform id="scaleXYZ"> 
+           <group id="cutline"></group> 
+           <transform def="SURFACE1" rotation="1.0 0 0 -1.57"> 
+            <transform scale="_SCALE_"> 
+             <transform translation="_TRANSLATION_"> 
+              <shape> 
+               <appearance> 
+                <material></material> 
+               </appearance> 
+               <indexedfaceset coordindex="_FACES_" creaseangle="0.5" colorpervertex="true" solid="false"> 
+                <coordinate id="pointCoordinate1" point="_VERTICES_"></coordinate> 
+                <color id="colorColor1" color=""></color> 
+               </indexedfaceset> 
+              </shape> 
+             </transform> 
+            </transform> 
+           </transform> 
+
+          <!-- cut plane -->
+           <switch id="cuttingXYZ" def="XYZPLANE" whichchoice="-1"> 
+            <transform def="XPLANE" rotation="1 0 0 -1.57"> 
+             <transform scale="_SCALE_"> 
+              <transform translation="_TRANSLATION_"> 
+               <transform id="xplane"> 
+                <shape> 
+                 <appearance> 
+                  <material diffusecolor="0.8 0.8 0.8" transparency="0.6"></material> 
+                 </appearance> 
+                 <indexedfaceset coordindex="0 1 2 3" solid="false"> 
+                  <coordinate point="_CUT_XPLANE_"></coordinate> 
+                 </indexedfaceset> 
+                </shape> 
+               </transform> 
+              </transform> 
+             </transform> 
+            </transform> 
+            <transform def="YPLANE" rotation="1 0 0 -1.57"> 
+             <transform scale="_SCALE_"> 
+              <transform translation="_TRANSLATION_"> 
+               <transform id="yplane"> 
+                <shape> 
+                 <appearance> 
+                  <material diffusecolor="0.8 0.8 0.8" transparency="0.6"></material> 
+                 </appearance> 
+                 <indexedfaceset coordindex="0 1 2 3" solid="false"> 
+                  <coordinate point="_CUT_YPLANE_"></coordinate> 
+                 </indexedfaceset> 
+                </shape> 
+               </transform> 
+              </transform> 
+             </transform> 
+            </transform> 
+            <transform def="ZPLANE" rotation="1 0 0 -1.57"> 
+             <transform scale="_SCALE_"> 
+              <transform translation="_TRANSLATION_"> 
+               <transform id="zplane"> 
+                <shape> 
+                 <appearance> 
+                  <material diffusecolor="0.8 0.8 0.8" transparency="0.6"></material> 
+                 </appearance> 
+                 <indexedfaceset coordindex="0 1 2 3" solid="false"> 
+                  <coordinate point="_CUT_ZPLANE_"></coordinate> 
+                 </indexedfaceset> 
+                </shape> 
+               </transform> 
+              </transform> 
+             </transform> 
+            </transform> 
+           </switch> 
+
+           <!-- axis box --> 
+           <transform def="OUTLINE" rotation="1.0 0.0 0.0  -1.57"> 
+            <transform scale="_SCALE_"> 
+             <transform translation="_TRANSLATION_"> 
+              <switch id="outlineSwitch"> 
+               <shape> 
+                <appearance> 
+                 <material diffusecolor="0. 0. 0."></material> 
+                </appearance> 
+                <indexedlineset coordindex="0 1 2 3 0 -1 3 2 6 7 3 -1 0 3 7 4 0 -1"> 
+                 <coordinate point="_BOX_"></coordinate> 
+                </indexedlineset> 
+               </shape> 
+               <shape> 
+                <appearance> 
+                 <material diffusecolor="0. 0. 0."></material> 
+                </appearance> 
+                <indexedlineset coordindex="0 1 2 3 0 -1 0 4 -1 1 5 -1 2 6 -1 4 5 -1 5 6 -1"> 
+                 <coordinate point="_BOX_"></coordinate> 
+                </indexedlineset> 
+               </shape> 
+               <shape> 
+                <appearance> 
+                 <material diffusecolor="0. 0. 0."></material> 
+                </appearance> 
+                <indexedlineset coordindex="0 1 2 3 0 -1 3 7 -1 1 5 -1 2 6 -1 5 6 -1 6 7 -1"> 
+                 <coordinate point="_BOX_"></coordinate> 
+                </indexedlineset> 
+               </shape> 
+               <shape> 
+                <appearance> 
+                 <material diffusecolor="0. 0. 0."></material> 
+                </appearance> 
+                <indexedlineset coordindex="0 1 2 3 0 -1 0 4 -1 1 5 -1 3 7 -1 4 5 -1 4 7 -1"> 
+                 <coordinate point="_BOX_"></coordinate> 
+                </indexedlineset> 
+               </shape> 
+               <shape> 
+                <appearance> 
+                 <material diffusecolor="0. 0. 0."></material> 
+                </appearance> 
+                <indexedlineset coordindex="4 5 6 7 4 -1 0 1 2 3 0 -1 0 4 -1 1 5 -1 2 6 -1 3 7 -1"> 
+                 <coordinate point="_BOX_"></coordinate> 
+                </indexedlineset> 
+               </shape> 
+               <shape> 
+                <appearance> 
+                 <material diffusecolor="0. 0. 0."></material> 
+                </appearance> 
+                <indexedlineset coordindex="4 5 6 7 4 -1 0 1 2 3 0 -1 0 4 -1 1 5 -1 2 6 -1 3 7 -1"> 
+                 <coordinate point="_BOX_"></coordinate> 
+                </indexedlineset> 
+               </shape> 
+              </switch> 
+             </transform> 
+            </transform> 
+           </transform> 
+
+            <!-- axis tick --> 
+           <group> 
+            <transform id="text_x" translation="1 1 1" scale="0.15 0.15 0.15" rotation="0.0 1.0 0.0 -1.57"> 
+             <shape> 
+              <appearance> 
+               <material diffusecolor="0.0 0.0 0.0"></material> 
+              </appearance> 
+              <text id="textX" string="x"> 
+               <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+              </text> 
+             </shape> 
+            </transform> 
+            <transform id="text_y" translation="1 1 1" scale="0.15 0.15 0.15" rotation="0.0 1.0 0.0 -1.57"> 
+             <shape> 
+              <appearance> 
+               <material diffusecolor="0.0 0.0 0.0"></material> 
+              </appearance> 
+              <text id="textY" string="y"> 
+               <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+              </text> 
+             </shape> 
+            </transform> 
+            <transform id="text_minx" translation="1 1 1" scale="0.15 0.15 0.15" rotation="0.0 1.0 0.0 -1.57"> 
+             <shape> 
+              <appearance> 
+               <material diffusecolor="0.0 0.0 0.0"></material> 
+              </appearance> 
+              <text id="textMINX" string="_MINX_"> 
+               <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+              </text> 
+             </shape> 
+            </transform> 
+            <transform id="text_maxx" translation="0.963001 -0.672891 1.250000" scale="0.15 0.15 0.15" rotation="0.0 1.0 0.0 -1.57"> 
+             <shape> 
+              <appearance> 
+               <material diffusecolor="0.0 0.0 0.0"></material> 
+              </appearance> 
+              <text id="textMAXX" string="_MAXX_"> 
+               <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+              </text> 
+             </shape> 
+            </transform> 
+            <transform id="text_miny" translation="1.036999 -0.561895 1.250000" scale="0.15 0.15 0.15" rotation="0.0 1.0 0.0 -1.57"> 
+             <shape> 
+              <appearance> 
+               <material diffusecolor="0.0 0.0 0.0"></material> 
+              </appearance> 
+              <text id="textMINY" string="_MINY_"> 
+               <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+              </text> 
+             </shape> 
+            </transform> 
+            <transform id="text_maxy" translation="1.036999 -0.561895 -1.250000" scale="0.15 0.15 0.15" rotation="0.0 1.0 0.0 -1.57"> 
+             <shape> 
+              <appearance> 
+               <material diffusecolor="0.0 0.0 0.0"></material> 
+              </appearance> 
+              <text id="textMAXY" string="_MAXY_"> 
+               <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+              </text> 
+             </shape> 
+            </transform> 
+            <transform id="text_minz" translation="-1.036999 -0.524897 1.250000" scale="0.15 0.15 0.15" rotation="0.0 1.0 0.0 -1.57"> 
+             <switch id="minz_switch" whichchoice="0"> 
+              <shape> 
+               <appearance> 
+                <material diffusecolor="0.0 0.0 0.0"></material> 
+               </appearance> 
+               <text id="textMINZ" string="_MINZ_"> 
+                <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+               </text> 
+              </shape> 
+              <shape> 
+               <appearance> 
+                <material diffusecolor="0.0 0.0 0.0"></material> 
+               </appearance> 
+               <text string=""> 
+                <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+               </text> 
+              </shape> 
+             </switch> 
+            </transform> 
+            <transform id="text_maxz" translation="-1.036999 0.524897 1.250000" scale="0.15 0.15 0.15" rotation="0.0 1.0 0.0 -1.57"> 
+             <switch id="maxz_switch" whichchoice="0"> 
+              <shape> 
+               <appearance> 
+                <material diffusecolor="0.0 0.0 0.0"></material> 
+               </appearance> 
+               <text id="textMAXZ" string="_MAXZ_"> 
+                <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+               </text> 
+              </shape> 
+              <shape> 
+               <appearance> 
+                <material diffusecolor="0.0 0.0 0.0"></material> 
+               </appearance> 
+               <text string=""> 
+                <fontstyle family="STIXGeneral,CAMBRIA,SERIF"></fontstyle> 
+               </text> 
+              </shape> 
+             </switch> 
+            </transform> 
+           </group> 
+
+
+          </transform> 
+          <viewpoint id="frontView" position="2.35983 2.51660 2.72673" orientation="-0.62342 0.72467 0.29360 0.99845" description="Front"></viewpoint> 
+          <viewpoint id="backView" position="-2.31829 2.47987 -2.78549" orientation="0.18047 0.93431 0.30741 3.84456" description="Back"></viewpoint> 
+          <viewpoint id="leftView" position="-3.43324 2.06492 1.83636" orientation="-0.45727 -0.86973 -0.18568 1.16807" description="Left"></viewpoint> 
+          <viewpoint id="rightView" position="3.07040 1.92054 -2.55194" orientation="-0.12267 0.96143 0.24617 2.29555" description="Right"></viewpoint> 
+          <viewpoint id="topView" position="-0.13360 4.19500 -0.00612" orientation="1.00000 0.00000 0.00000 -1.57000" description="Top"></viewpoint> 
+          <viewpoint id="bottomView" position="-0.13360 -4.19500 -0.00612" orientation="1.00000 0.00000 0.00000 1.57000" description="Bottom"></viewpoint> 
+         </group> 
+        </scene> 
+       </x3d> 
+      </div> 
+     </figure> 
+
+     <div id="controlsWrapper"> 
+
+	<!-- <div class="box" id="colormap">
+        <div class="ltx_title">Colormap</div>
+        <div class="buttons">
+          <input checked="" id="modulus" name="colormap" title="Color according to Modulus" type="radio" class="ui-helper-hidden-accessible">
+          <label for="modulus" class="ui-state-active ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" aria-pressed="true" role="button"><span class="ui-button-text">Modulus</span></label>
+          <input id="spectrum" name="colormap" title="Color according to Phase" type="radio" class="ui-helper-hidden-accessible">
+          <label for="spectrum" aria-pressed="false" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"><span class="ui-button-text">Phase</span></label>
+          <input id="four" name="colormap" title="Color according to quadrant of phase" type="radio" class="ui-helper-hidden-accessible">
+          <label for="four" aria-pressed="false" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"><span class="ui-button-text">Quadrant</span></label>
+        </div>
+      </div> -->
+
+      <div class="box" id="viewpoint"> 
+       <div class="ltx_title">
+        Viewpoint
+       </div> 
+       <div class="buttons"> 
+        <input id="front" name="viewpoint" title="Front view" type="radio" /> 
+        <label for="front"></label> 
+        <input id="right" name="viewpoint" title="Right side view" type="radio" /> 
+        <label for="right"></label> 
+        <input id="back" name="viewpoint" title="Rear view" type="radio" /> 
+        <label for="back"></label> 
+        <input id="left" name="viewpoint" title="Left side view" type="radio" /> 
+        <label for="left"></label> 
+        <input id="top" name="viewpoint" title="View from Above" type="radio" /> 
+        <label for="top"></label> 
+        <input id="bottom" name="viewpoint" title="View from Underneath" type="radio" /> 
+        <label for="bottom"></label> 
+       </div> 
+      </div> 
+
+      <div class="box" id="scaleSlider"> 
+       <div class="ltx_title">
+        Scale Figure
+       </div> 
+
+       <div class="sliderControl"> 
+        <div> 
+         <label class="sliderLabel"><span class="labelX">X</span>: </label> 
+         <input class="slidertext" id="percentX" type="text" /> 
+        </div> 
+        <div class="slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" id="xscaleSlider"></div> 
+       </div> 
+       <div class="sliderControl"> 
+        <div> 
+         <label class="sliderLabel"><span class="labelY">Y</span>: </label> 
+         <input class="slidertext" id="percentY" type="text" /> 
+        </div> 
+        <div class="slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" id="yscaleSlider"></div> 
+       </div> 
+       <div class="sliderControl"> 
+        <div> 
+         <label class="sliderLabel"><span class="labelZ">Z</span>: </label> 
+         <input class="slidertext" id="percentZ" type="text" /> 
+        </div> 
+        <div class="slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" id="zscaleSlider"></div> 
+       </div> 
+      </div> 
+
+      <div class="box" id="cutControl"> 
+       <div class="ltx_title">
+        Cutting Control
+       </div> 
+
+       <div class="buttons cutAxesButtons" id="cutAxis"> 
+        <input class="labelX" id="X" name="cutAxis" type="radio" /> 
+        <label for="X">x</label> 
+        <input class="labelY" id="Y" name="cutAxis" type="radio" /> 
+        <label for="Y">y</label> 
+        <input class="labelZ" id="Z" name="cutAxis" type="radio" /> 
+        <label for="Z">z</label> 
+        <input checked="" id="clear" name="cutAxis" type="radio" /> 
+        <label for="clear">clear</label> 
+       </div> 
+
+       <div class="buttons cutTapeButtons" id="cutTape"> 
+        <input id="rewind" name="cutTape" title="Rewind" type="radio" /> 
+        <label for="rewind"></label> 
+        <input id="reverse" name="cutTape" title="Reverse" type="radio" /> 
+        <label for="reverse"></label> 
+        <input checked="" id="stop" name="cutTape" title="Stop Animation" type="radio" /> 
+        <label for="stop"></label> 
+        <input id="play" name="cutTape" title="Play Animation" type="radio" /> 
+        <label for="play"></label> 
+        <input id="ff" name="cutTape" title="Fast Forward" type="radio" /> 
+        <label for="ff"></label> 
+       </div> 
+
+       <div class="cutDisplay"> 
+        <canvas id="cutCurve"></canvas> 
+        <div class="sliderControl"> 
+         <div> 
+          <label class="sliderLabel" id="cuttingLabel">plane: </label> 
+          <input class="slidertext" id="cuttingValue" type="text" /> 
+         </div> 
+         <div class="slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" id="cuttingSlider"></div> 
+        </div> 
+       </div> 
+
+      </div> 
+     </div> 
+    </figure> 
+   </div>  
+  </div>
+  <script src="DLMF/jquery.js" type="text/javascript"></script> 
+   <script src="DLMF/jquery-ui.js" type="text/javascript"></script> 
+   <script src="DLMF/x3dom.js" type="text/javascript"></script> 
+   <script src="DLMF/patch.js" type="text/javascript"></script> 
+   <!-- <script src="DLMF/data.js" type="text/javascript"></script>  -->
+   <script src="DLMF/DLMF_webGL.js" type="text/javascript"></script> 
+   <script src="DLMF/jquery.leaveNotice.js" type="text/javascript"></script> 
+   <script src="DLMF/DLMF.js" type="text/javascript"></script> 
+   <script src="DLMF/LaTeXML-maybeMathjax.js" type="text/javascript"></script>  
+ </body>
+</html>
