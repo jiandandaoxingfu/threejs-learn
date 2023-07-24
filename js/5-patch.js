@@ -1,8 +1,8 @@
 /*
 * @Author:              old jia
 * @Date:                2018-08-29 09:48:16
-* @Last Modified by:   old jia
-* @Last Modified time: 2021-09-01 12:38:30
+* @Last Modified by:   jiami
+* @Last Modified time: 2023-03-14 12:51:29
 * @Email:               jiaminxin@outlook.com
 */
 
@@ -49,7 +49,7 @@ function colorMap(z) {
 	geom.computeVertexNormals();
 	surface = new THREE.Mesh(
 		geom, 
-		new THREE.MeshLambertMaterial({wireframe: !1, vertexColors: true, side: THREE.DoubleSide})
+		new THREE.MeshLambertMaterial({wireframe: !0, vertexColors: true, side: THREE.DoubleSide})
 	);
 	surface.geometry.center();
 	surface.rotation.z = -Math.PI/2;
